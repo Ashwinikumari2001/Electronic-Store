@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,12 +16,14 @@ import org.springframework.web.bind.annotation.*;
 public class CartConroller {
   @Autowired
   public CartService cartService;
+  @PreAuthorize("hasAnyRole('NORMAL','ADMIN')")
   @PostMapping("/{userId}")
     public ResponseEntity<CartDto> addItemToCart(@RequestBody AddItemToCartRequest request, @PathVariable String userId ){
         CartDto cartDto=cartService.addItemToCart(userId,request);
         return new ResponseEntity<>(cartDto, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('NORMAL','ADMIN')")
     @DeleteMapping("/{userId}/item/{itemId}")
     public ResponseEntity<ApiResponseMessage> removeItemFromCart(@PathVariable String userId,@PathVariable int itemId){
       cartService.removeItemFromCart(userId,itemId);
@@ -32,6 +35,7 @@ public class CartConroller {
       return new ResponseEntity<>(response,HttpStatus.OK);
 
     }
+    @PreAuthorize("hasAnyRole('NORMAL','ADMIN')")
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponseMessage> clearCart(@PathVariable String userId) {
         cartService.clearCart(userId);
@@ -42,6 +46,7 @@ public class CartConroller {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @PreAuthorize("hasAnyRole('NORMAL','ADMIN')")
     @GetMapping("/{userId}")
     public ResponseEntity<CartDto> getCart(@PathVariable String userId){
       CartDto cartDto=cartService.getCartOfUser(userId);

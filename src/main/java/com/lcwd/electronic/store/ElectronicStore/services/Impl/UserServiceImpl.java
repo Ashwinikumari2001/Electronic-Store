@@ -1,10 +1,13 @@
 package com.lcwd.electronic.store.ElectronicStore.services.Impl;
 
 import com.lcwd.electronic.store.ElectronicStore.dtos.PageableResponse;
+import com.lcwd.electronic.store.ElectronicStore.dtos.RoleDto;
 import com.lcwd.electronic.store.ElectronicStore.dtos.UserDto;
+import com.lcwd.electronic.store.ElectronicStore.entities.Role;
 import com.lcwd.electronic.store.ElectronicStore.entities.User;
 import com.lcwd.electronic.store.ElectronicStore.exception.ResourceNotFound;
 import com.lcwd.electronic.store.ElectronicStore.helper.Helper;
+import com.lcwd.electronic.store.ElectronicStore.repositories.RoleRepository;
 import com.lcwd.electronic.store.ElectronicStore.repositories.UserRepository;
 import com.lcwd.electronic.store.ElectronicStore.services.UserService;
 import org.modelmapper.ModelMapper;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,6 +38,11 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleRepository roleRepository;
     @Value("${user.profile.image.path}")
     private String imagePath;
 
@@ -43,6 +52,13 @@ public class UserServiceImpl implements UserService {
         String userId= UUID.randomUUID().toString();
         userDto.setUserId(userId);
         User user=dtoToEntity(userDto);
+        user.setPassward(passwordEncoder.encode(user.getPassword()));
+
+        Role role=new Role();
+        role.setRoleId(UUID.randomUUID().toString());
+        role.setName("ROLE_NORMAL");
+        Role roleNormal=roleRepository.findByName("ROLE_NORMAL").orElse(role);
+        user.setRoles(List.of(roleNormal));
         User savedUser=userRepository.save(user);
         UserDto newDto=entityToDto(savedUser);
         return newDto;
@@ -54,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, String userId) {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFound("user not found with given id!!"));
         user.setName(userDto.getName());
-        user.setPassward(userDto.getPassward());
+        user.setPassward(passwordEncoder.encode(userDto.getPassward()));
         user.setGender(userDto.getGender());
         user.setAbout(userDto.getAbout());
         user.setImageName(userDto.getImageName());
@@ -93,6 +109,18 @@ public class UserServiceImpl implements UserService {
 
         Page<User> pages=userRepository.findAll(pageable);
         PageableResponse<UserDto> response=Helper.getPageableResponse(pages,UserDto.class);
+        // 🔥 Manually map roles for each UserDto
+        for (int i = 0; i < pages.getContent().size(); i++) {
+            User user = pages.getContent().get(i);
+            UserDto dto = response.getContent().get(i);
+
+            List<RoleDto> roles = user.getRoles()
+                    .stream()
+                    .map(role -> mapper.map(role, RoleDto.class))
+                    .collect(Collectors.toList());
+
+            dto.setRoleDtoList(roles);
+        }
         return response;
     }
 

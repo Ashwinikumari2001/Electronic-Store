@@ -1,5 +1,6 @@
 package com.lcwd.electronic.store.ElectronicStore.dtos;
 
+import com.lcwd.electronic.store.ElectronicStore.entities.Role;
 import com.lcwd.electronic.store.ElectronicStore.validate.ImageNameValid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
@@ -8,6 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,4 +38,6 @@ public class UserDto {
 
     @ImageNameValid(message = "Invalid ImageName!!")
     private String imageName;
+
+    private List<RoleDto> roleDtoList;
 }
