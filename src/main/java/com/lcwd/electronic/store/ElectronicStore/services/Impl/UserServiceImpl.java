@@ -110,17 +110,17 @@ public class UserServiceImpl implements UserService {
         Page<User> pages=userRepository.findAll(pageable);
         PageableResponse<UserDto> response=Helper.getPageableResponse(pages,UserDto.class);
         // 🔥 Manually map roles for each UserDto
-        for (int i = 0; i < pages.getContent().size(); i++) {
-            User user = pages.getContent().get(i);
-            UserDto dto = response.getContent().get(i);
-
-            List<RoleDto> roles = user.getRoles()
-                    .stream()
-                    .map(role -> mapper.map(role, RoleDto.class))
-                    .collect(Collectors.toList());
-
-            dto.setRoleDtoList(roles);
-        }
+//        for (int i = 0; i < pages.getContent().size(); i++) {
+//            User user = pages.getContent().get(i);
+//            UserDto dto = response.getContent().get(i);
+//
+//            List<RoleDto> roles = user.getRoles()
+//                    .stream()
+//                    .map(role -> mapper.map(role, RoleDto.class))
+//                    .collect(Collectors.toList());
+//
+//            dto.setRoleDtoList(roles);
+//        }
         return response;
     }
 

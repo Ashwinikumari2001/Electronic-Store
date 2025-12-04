@@ -39,5 +39,5 @@ public class UserDto {
     @ImageNameValid(message = "Invalid ImageName!!")
     private String imageName;
 
-    private List<RoleDto> roleDtoList;
+    private List<RoleDto> roles;
 }

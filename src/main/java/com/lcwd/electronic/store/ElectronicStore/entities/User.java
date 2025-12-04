@@ -44,6 +44,8 @@ public class User implements UserDetails {
     private List<Order> order=new ArrayList<>();
      @ManyToMany(cascade ={CascadeType.PERSIST,CascadeType.MERGE},fetch = FetchType.EAGER)
     List<Role> roles=new ArrayList<>();
+     @OneToOne(mappedBy = "user",cascade=CascadeType.ALL)
+     private Cart cart;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
